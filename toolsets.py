@@ -70,6 +70,10 @@ _HERMES_CORE_TOOLS = [
     "kanban_unblock",
     # Computer use (macOS, gated on cua-driver being installed via check_fn)
     "computer_use",
+    # RAGFlow 知识库检索（金融投顾场景）
+    "ragflow_retrieve",
+    # Calc - 精确数学计算（decimal-based，金融场景）
+    "calc_eval",
 ]
 
 
@@ -279,6 +283,18 @@ TOOLSETS = {
             "yb_search_sticker",
             "yb_send_sticker",
         ],
+        "includes": []
+    },
+
+    "ragflow": {
+        "description": "RAGFlow 本地知识库检索（金融投顾场景，单一工具 ragflow_retrieve）",
+        "tools": ["ragflow_retrieve"],
+        "includes": []
+    },
+
+    "calc": {
+        "description": "精确数学计算（Decimal-based，金融投顾场景，工具 calc_eval）",
+        "tools": ["calc_eval"],
         "includes": []
     },
 
