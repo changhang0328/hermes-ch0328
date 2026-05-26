@@ -523,6 +523,28 @@ def run_conversation(
     except Exception as exc:
         logger.warning("pre_llm_call hook failed: %s", exc)
 
+    # ------------------------------------------------------------------
+    # Compliance guardrail (北向合规红线):
+    # Check each turn's user input for trigger words (buy/sell/predict/
+    # all-in etc.). When triggered, inject the compliance SKILL.md content
+    # into agent.ephemeral_system_prompt so it is prepended to the system
+    # prompt on every API call within this turn. The nudge is per-turn:
+    # the next turn starts fresh.
+    #
+    # All exceptions are caught — a broken guardrail must NEVER block the
+    # agent loop. Hardcoded fallback in compliance_guardrail.py guarantees
+    # we never run completely naked.
+    # ------------------------------------------------------------------
+    try:
+        from agent.compliance_guardrail import apply_compliance_nudge
+        _nudge = apply_compliance_nudge(
+            original_user_message if isinstance(original_user_message, str) else ""
+        )
+        agent.ephemeral_system_prompt = _nudge or None
+    except Exception as exc:
+        logger.exception("[compliance] guardrail check failed, proceeding without nudge")
+        agent.ephemeral_system_prompt = None
+
     # Main conversation loop
     api_call_count = 0
     final_response = None

@@ -727,6 +727,39 @@ def skill_manage(
 
     Returns JSON string with results.
     """
+    # ------------------------------------------------------------------
+    # Protected-skill guard:
+    # Skills listed in agent/protected_skills.yaml (or the user-level
+    # ~/.hermes/protected_skills.yaml override) are off-limits to ALL
+    # write actions via this tool. This protects compliance/business
+    # critical skills from being mutated by chat-driven prompt injection.
+    # Read-only access (skill_view) is unaffected.
+    # ------------------------------------------------------------------
+    try:
+        from agent.protected_skills import is_protected
+        if is_protected(name):
+            logger.warning(
+                "[skill_manage] BLOCKED action=%r on protected skill %r",
+                action, name,
+            )
+            return tool_error(
+                f"Skill '{name}' is protected and cannot be modified via the "
+                f"skill_manage tool. Protected skills (e.g. compliance "
+                f"guardrails, business-critical workflows) can only be edited "
+                f"by administrators through code review processes. Do NOT "
+                f"attempt to guide the user to modify them through other means "
+                f"(terminal commands, write_file, etc.). Contact the "
+                f"administrator if this rule needs to change.",
+                kind="protected_skill",
+                skill=name,
+                action=action,
+            )
+    except Exception:
+        # Defensive: a broken protection layer must NOT block legitimate
+        # skill edits. Other defenses (filesystem chmod, hardcoded fallback
+        # in agent/compliance_guardrail.py) still hold.
+        logger.exception("[skill_manage] protected_skills check failed, proceeding")
+
     if action == "create":
         if not content:
             return tool_error("content is required for 'create'. Provide the full SKILL.md text (frontmatter + body).", success=False)
@@ -824,7 +857,14 @@ SKILL_MANAGE_SCHEMA = {
         "Pinned skills are protected from deletion only — skill_manage(action='delete') "
         "will refuse with a message pointing the user to `hermes curator unpin <name>`. "
         "Patches and edits go through on pinned skills so you can still improve them as "
-        "pitfalls come up; pin only guards against irrecoverable loss."
+        "pitfalls come up; pin only guards against irrecoverable loss.\n\n"
+        "PROTECTED SKILLS: Some skills (e.g. compliance_guardrail) are protected by "
+        "administrator configuration and CANNOT be modified through ANY action "
+        "(create/edit/patch/delete/write_file/remove_file). If you attempt to modify a "
+        "protected skill, the tool will reject it with a 'protected_skill' error. Do NOT "
+        "attempt to work around this by guiding the user to modify files through terminal "
+        "commands or other tools. Protected skills can only be changed through code review "
+        "processes by administrators."
     ),
     "parameters": {
         "type": "object",
