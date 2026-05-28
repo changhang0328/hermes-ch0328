@@ -74,6 +74,8 @@ _HERMES_CORE_TOOLS = [
     "ragflow_retrieve",
     # Calc - 精确数学计算（decimal-based，金融场景）
     "calc_eval",
+    # Market Data - A股实时行情（基于 akshare，金融场景）
+    "get_live_market_data",
 ]
 
 

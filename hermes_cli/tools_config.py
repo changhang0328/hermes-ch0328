@@ -78,7 +78,7 @@ CONFIGURABLE_TOOLSETS = [
     ("discord_admin",   "🛡️  Discord Server Admin",    "list channels/roles, pin, assign roles"),
     ("yuanbao",          "🤖 Yuanbao",                  "group info, member queries, DM"),
     ("computer_use",     "🖱️  Computer Use (macOS)",     "background desktop control via cua-driver"),
-    ("ragflow",          "📚 RAGFlow Knowledge Base",    "ragflow_retrieve (本地知识库检索 / 金融投顾)"),
+    ("finance_data",     "💰 Finance Data (金融数据)",    "ragflow_retrieve (知识库) + get_live_market_data (A股实时行情, akshare)"),
     ("calc",             "🧮 Calc (精确数学计算)",        "calc_eval (Decimal / 金融精度)"),
 ]
 

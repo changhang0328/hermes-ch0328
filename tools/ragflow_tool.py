@@ -197,7 +197,7 @@ RAGFLOW_SCHEMA = {
 
 registry.register(
     name="ragflow_retrieve",
-    toolset="ragflow",
+    toolset="finance_data",
     schema=RAGFLOW_SCHEMA,
     handler=lambda args, **kw: ragflow_retrieve(question=args.get("question", "")),
     check_fn=check_ragflow_requirements,
